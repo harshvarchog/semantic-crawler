@@ -11,7 +11,8 @@ vector embeddings.
 - RabbitMQ, scipy, numpy
 
 ## Status
-🔧 Stage 1 — Project setup complete
+ Stage 1 — Project setup complete
+ Stage 2 — FastAPI endpoint(in progress)
 
 ## Build Stages
 - [x] Stage 1 — Git + GitHub setup

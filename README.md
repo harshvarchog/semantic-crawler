@@ -16,8 +16,8 @@ vector embeddings.
 
 ## Build Stages
 - [x] Stage 1 — Git + GitHub setup
-- [ ] Stage 2 — FastAPI endpoint
-- [ ] Stage 3 — PostgreSQL + pgvector
+- [x] Stage 2 — FastAPI endpoint
+- [ ] Stage 3 — PostgreSQL + pgvector(in progress)
 - [ ] Stage 4 — RabbitMQ + workers
 - [ ] Stage 5 — Playwright + chunker
 - [ ] Stage 6 — Embeddings + similarity

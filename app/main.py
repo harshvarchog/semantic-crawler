@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from pydantic import BaseModel, HttpUrl
 from typing import Optional, List
+import pika
+import json
 
 app = FastAPI(
     title="Semantic Web Crawler",
@@ -17,15 +19,42 @@ class MonitorResponse(BaseModel):
     status: str
     message: str
 
+def publish_to_queue(message: dict):
+    # Connect to RabbitMQ
+    connection = pika.BlockingConnection(
+        pika.ConnectionParameters(host='localhost')
+    )
+    channel = connection.channel()
+
+    # Create queue if it doesn't exist
+    channel.queue_declare(queue='crawl_tasks', durable=True)
+
+    # Publish the message
+    channel.basic_publish(
+        exchange='',
+        routing_key='crawl_tasks',
+        body=json.dumps(message),
+        properties=pika.BasicProperties(
+            delivery_mode=2  # makes message persistent
+        )
+    )
+
+    connection.close()
+    print(f"Published to queue: {message}")
+
 @app.post("/monitor", response_model=MonitorResponse)
 async def monitor(request: MonitorRequest):
-    print(f"Received request to monitor: {request.url}")
-    print(f"Will notify: {request.webhook_url}")
-    print(f"Watching zones: {request.zones_to_watch}")
+    message = {
+        "url": str(request.url),
+        "webhook_url": str(request.webhook_url),
+        "zones_to_watch": request.zones_to_watch
+    }
+
+    publish_to_queue(message)
 
     return MonitorResponse(
         status="queued",
-        message=f"URL accepted and queued for monitoring"
+        message="URL accepted and queued for monitoring"
     )
 
 @app.get("/health")

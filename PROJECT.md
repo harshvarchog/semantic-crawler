@@ -120,8 +120,9 @@ Stage 9 - Retry logic and dead letter queue
 
 ## Current status
 
-Stage 1 complete. Project structure initialized, repository created,
-virtual environment configured.
+Stages 1 through 5 complete. Playwright crawler visits pages with
+headless Chromium and extracts named semantic zones from the rendered
+HTML using heading tags and semantic elements.
 
 ## Key numbers
 

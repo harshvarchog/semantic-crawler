@@ -4,6 +4,9 @@ import asyncio
 import sys
 from playwright.async_api import async_playwright
 from bs4 import BeautifulSoup
+from app.embeddings import get_embedding, cosine_similarity
+from sqlalchemy.orm import Session
+from app.models import engine, ZoneSnapshot
 
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
@@ -82,12 +85,40 @@ def process_message(ch, method, properties, body):
 
     zones = extract_zones(html)
     print(f"  Found {len(zones)} zones:")
+
+    session = Session(engine)
+
     for zone in zones:
-        preview = zone["text"][:80] + "..." if len(zone["text"]) > 80 else zone["text"]
-        print(f"    - {zone['zone_name']}: {preview}")
+        embedding = get_embedding(zone["text"])
+
+        previous = session.query(ZoneSnapshot).filter_by(
+            url=url, zone_name=zone["zone_name"]
+        ).order_by(ZoneSnapshot.crawled_at.desc()).first()
+
+        sim_score = None
+        if previous and previous.embedding is not None:
+            sim_score = cosine_similarity(embedding, previous.embedding)
+
+        snapshot = ZoneSnapshot(
+            url=url,
+            zone_name=zone["zone_name"],
+            chunk_text=zone["text"],
+            embedding=embedding,
+            sim_score=sim_score
+        )
+        session.add(snapshot)
+
+        if sim_score is not None:
+            print(f"    - {zone['zone_name']}: similarity = {sim_score:.4f}")
+        else:
+            print(f"    - {zone['zone_name']}: first crawl, no comparison yet")
+
+    session.commit()
+    session.close()
 
     ch.basic_ack(delivery_tag=method.delivery_tag)
     print(f"  Job done and acknowledged")
+
 
 
 def start_worker():

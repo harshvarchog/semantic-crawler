@@ -11,7 +11,7 @@ vector embeddings.
 - RabbitMQ, scipy, numpy
 
 ## Status
- Stage 5 — Playwright crawler and zone chunker complete
+ Stage 6 — Embeddings and similarity scoring complete
 
 ## Build Stages
 - [x] Stage 1 — Git + GitHub setup
@@ -19,7 +19,7 @@ vector embeddings.
 - [x] Stage 3 — PostgreSQL + pgvector(in progress)
 - [x] Stage 4 — RabbitMQ + workers
 - [x] Stage 5 — Playwright + chunker
-- [ ] Stage 6 — Embeddings + similarity
+- [x] Stage 6 — Embeddings + similarity
 - [ ] Stage 7 — SPRT engine
 - [ ] Stage 8 — LLM diff + webhook
 - [ ] Stage 9 — Retry logic + DLQ

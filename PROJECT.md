@@ -120,9 +120,9 @@ Stage 9 - Retry logic and dead letter queue
 
 ## Current status
 
-Stages 1 through 5 complete. Playwright crawler visits pages with
-headless Chromium and extracts named semantic zones from the rendered
-HTML using heading tags and semantic elements.
+Stages 1 through 6 complete. Embedding generation and cosine similarity
+scoring implemented. Each zone's text is converted to a 384-dim vector
+and compared against previous crawls.
 
 ## Key numbers
 

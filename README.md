@@ -11,7 +11,7 @@ vector embeddings.
 - RabbitMQ, scipy, numpy
 
 ## Status
- Stage 6 — Embeddings and similarity scoring complete
+ Stage 7 — SPRT change detection engine complete
 
 ## Build Stages
 - [x] Stage 1 — Git + GitHub setup
@@ -20,6 +20,6 @@ vector embeddings.
 - [x] Stage 4 — RabbitMQ + workers
 - [x] Stage 5 — Playwright + chunker
 - [x] Stage 6 — Embeddings + similarity
-- [ ] Stage 7 — SPRT engine
+- [x] Stage 7 — SPRT engine
 - [ ] Stage 8 — LLM diff + webhook
 - [ ] Stage 9 — Retry logic + DLQ

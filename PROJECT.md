@@ -120,9 +120,9 @@ Stage 9 - Retry logic and dead letter queue
 
 ## Current status
 
-Stages 1 through 6 complete. Embedding generation and cosine similarity
-scoring implemented. Each zone's text is converted to a 384-dim vector
-and compared against previous crawls.
+Stages 1 through 7 complete. SPRT change detection engine implemented.
+Similarity scores are accumulated per zone using a sliding window
+baseline and statistical boundaries to confirm real changes.
 
 ## Key numbers
 

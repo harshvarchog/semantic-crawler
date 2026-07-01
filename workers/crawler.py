@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 from app.embeddings import get_embedding, cosine_similarity
 from sqlalchemy.orm import Session
 from app.models import engine, ZoneSnapshot
+from app.sprt import run_sprt
 
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
@@ -96,22 +97,39 @@ def process_message(ch, method, properties, body):
         ).order_by(ZoneSnapshot.crawled_at.desc()).first()
 
         sim_score = None
+        sprt_state = None
+        log_sum = 0.0
+
         if previous and previous.embedding is not None:
             sim_score = cosine_similarity(embedding, previous.embedding)
+
+            history = session.query(ZoneSnapshot.sim_score).filter(
+                ZoneSnapshot.url == url,
+                ZoneSnapshot.zone_name == zone["zone_name"],
+                ZoneSnapshot.sim_score.isnot(None)
+            ).order_by(ZoneSnapshot.crawled_at.desc()).limit(30).all()
+
+            history_scores = [row[0] for row in history]
+
+            previous_log_sum = previous.log_sum or 0.0
+            sprt_state, log_sum = run_sprt(history_scores, sim_score, previous_log_sum)
 
         snapshot = ZoneSnapshot(
             url=url,
             zone_name=zone["zone_name"],
             chunk_text=zone["text"],
             embedding=embedding,
-            sim_score=sim_score
+            sim_score=sim_score,
+            sprt_state=sprt_state,
+            log_sum=log_sum
         )
         session.add(snapshot)
 
         if sim_score is not None:
-            print(f"    - {zone['zone_name']}: similarity = {sim_score:.4f}")
+            print(f"    - {zone['zone_name']}: similarity = {sim_score:.4f}, sprt = {sprt_state}, log_sum = {log_sum:.4f}")
         else:
             print(f"    - {zone['zone_name']}: first crawl, no comparison yet")
+
 
     session.commit()
     session.close()

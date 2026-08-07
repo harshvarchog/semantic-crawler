@@ -120,9 +120,9 @@ Stage 9 - Retry logic and dead letter queue
 
 ## Current status
 
-Stages 1 through 7 complete. SPRT change detection engine implemented.
-Similarity scores are accumulated per zone using a sliding window
-baseline and statistical boundaries to confirm real changes.
+Stages 1 through 8 complete. LLM diff summarization and webhook delivery implemented.
+When SPRT confirms a change, the system generates a human-readable summary
+and delivers it to the configured webhook endpoint with retry logic.
 
 ## Key numbers
 

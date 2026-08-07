@@ -5,6 +5,8 @@ import sys
 from playwright.async_api import async_playwright
 from bs4 import BeautifulSoup
 from app.embeddings import get_embedding, cosine_similarity
+from app.llm import summarize_diff
+from app.webhook import notify_change
 from sqlalchemy.orm import Session
 from app.models import engine, ZoneSnapshot
 from app.sprt import run_sprt
@@ -127,6 +129,29 @@ def process_message(ch, method, properties, body):
 
         if sim_score is not None:
             print(f"    - {zone['zone_name']}: similarity = {sim_score:.4f}, sprt = {sprt_state}, log_sum = {log_sum:.4f}")
+
+            # If SPRT detected a change, generate summary and send webhook
+            if sprt_state == "change_detected" and previous:
+                print(f"    *** CHANGE DETECTED in {zone['zone_name']} ***")
+                webhook_url = message.get("webhook_url")
+                if webhook_url:
+                    summary = summarize_diff(
+                        zone_name=zone["zone_name"],
+                        old_text=previous.chunk_text or "",
+                        new_text=zone["text"]
+                    )
+                    print(f"    Summary: {summary}")
+                    asyncio.run(notify_change(
+                        webhook_url=webhook_url,
+                        url=url,
+                        zone_name=zone["zone_name"],
+                        old_text=previous.chunk_text or "",
+                        new_text=zone["text"],
+                        similarity=sim_score,
+                        sprt_state=sprt_state,
+                        log_sum=log_sum,
+                        summary=summary
+                    ))
         else:
             print(f"    - {zone['zone_name']}: first crawl, no comparison yet")
 
